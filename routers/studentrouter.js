@@ -11,7 +11,7 @@ module.exports = {
     getStudentById: function (req, res) {
         Student.find({
             _id: mongoose.Types.ObjectId(req.params.id)
-        }, function (err, data) {
+        }).populate('teachers').exec(function (err, data) {
             res.json(data);
         })
     },
@@ -56,5 +56,24 @@ module.exports = {
                 res.json(err);
             } else res.json(data);
         })
+    },
+    addTeacher: function (req, res) {
+        let studentId = req.params.sId;
+        let teacherId = req.params.tId;
+        Student.findByIdAndUpdate({
+            _id: studentId,
+        }, {
+            $push: {
+                "teachers": mongoose.Types.ObjectId(teacherId)
+            }
+        }, {
+            upsert: false
+        }, function (err, data) {
+            if (err) {
+                res.json(err);
+            } else res.json(data);
+        })
+
+
     }
 }

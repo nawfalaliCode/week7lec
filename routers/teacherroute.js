@@ -17,9 +17,9 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
     Teacher.find({
         _id: mongoose.Types.ObjectId(req.params.id)
-    }, function (err, data) {
+    }).populate('students').exec(function (err, data) {
         res.json(data);
-    })
+    });
 })
 
 // insert new Teacher
@@ -70,6 +70,26 @@ router.put('/:id', (req, res) => {
             res.json(err);
         } else res.json(data);
     })
+});
+
+router.put('/:tId/students/:sId', (req, res) => {
+    let newStudentId = req.params.sId;
+    let teacherId = req.params.tId;
+    Teacher.findByIdAndUpdate({
+        _id: teacherId
+    }, {
+        $push: {
+            "students": mongoose.Types.ObjectId(newStudentId)
+        }
+    }, {
+        upsert: false
+    }, function (err, data) {
+        if (err) {
+            res.json(err);
+        } else res.json(data);
+    })
+
+
 })
 
 module.exports = router;
